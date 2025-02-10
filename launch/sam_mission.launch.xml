@@ -1,0 +1,29 @@
+<launch>
+    <node name="ping_synch" exec="ping_synchronizer" pkg="sam_mission_planner"  output="screen">
+        <param name="interval_ms" value="500"/>
+        <param name="leader1_acoustic_topic" value="/leader1/acoustic/write"/>
+        <param name="leader2_acoustic_topic" value="/leader2/acoustic/write"/>
+    </node>
+
+    <node name="string_stamped_processing" exec="string_stamped_processing" pkg="sam_mission_planner" output="screen">
+        <param name="follower_acoustic_topic" value="/follower/acoustic/read"/>
+        <param name="leader1_distance_topic" value="/follower/distance_to_leader1"/>
+        <param name="leader2_distance_topic" value="/follower/distance_to_leader2"/>
+    </node>
+
+    <include file="$(find-pkg-share sam_mission_planner)/launch/leader_motion.launch.xml"/>
+
+    <node name="fuse_distance_triangulation" exec="fuse_distance_triangulation" pkg="sam_mission_planner" output="screen">
+        <param name="leader1_distance_topic" value="/follower/distance_to_leader1"/>
+        <param name="leader2_distance_topic" value="/follower/distance_to_leader2"/>
+        <param name="follower_relative_position_triangulation_topic" value="/follower/relative_triangulation"/>
+        <param name="follower_depth_topic" value="/follower/core/depth300_pressure"/>
+        <param name="leaders_distance" value="50.0"/>
+    </node>
+
+    <include file="$(find-pkg-share sam_mission_planner)/launch/pid_controller.launch.xml"/>
+
+    <node name="ground_truth_tf2" exec="ground_truth_tf2" pkg="sam_mission_planner" output="screen">
+        <param name="follower_relative_gt_topic" value="/follower/relative_gt"/>
+    </node>
+</launch>

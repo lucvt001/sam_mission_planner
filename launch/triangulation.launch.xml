@@ -1,0 +1,9 @@
+<launch>
+    <node name="fuse_distance_triangulation" exec="fuse_distance_triangulation" pkg="sam_mission_planner" output="screen">
+        <param name="leader1_distance_topic" value="/follower/distance_to_leader1"/>
+        <param name="leader2_distance_topic" value="/follower/distance_to_leader2"/>
+        <param name="follower_relative_position_triangulation_topic" value="/follower/relative_triangulation"/>
+        <param name="follower_depth_topic" value="/follower/core/depth300_pressure"/>
+        <param name="leaders_distance" value="50.0"/>
+    </node>
+</launch>

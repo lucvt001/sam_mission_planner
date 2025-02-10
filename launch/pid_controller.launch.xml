@@ -1,0 +1,16 @@
+<launch>
+    <node name="rpm_pid" exec="pid_controller" pkg="sam_mission_planner" output="screen">
+        <param name="input_data_topic" value="/follower/relative_triangulation_x"/>
+        <param name="output_control_topic" value="/follower/core/thruster1_cmd_float"/>
+        <param from="$(find-pkg-share sam_mission_planner)/config/rpm_pid.yaml" />
+    </node>
+
+    <executable cmd="ros2 run topic_tools transform
+        /follower/core/thruster1_cmd_float /follower/core/thruster1_cmd
+        smarc_msgs/msg/ThrusterRPM
+        'smarc_msgs.msg.ThrusterRPM(rpm=int(m.data * 1000))'
+        --import smarc_msgs --wait-for-start" output="screen"/>
+
+    <executable cmd="ros2 run topic_tools relay 
+        /follower/core/thruster1_cmd /follower/core/thruster2_cmd --wait-for-start" output="screen"/>
+</launch>
