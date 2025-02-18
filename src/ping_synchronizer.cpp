@@ -9,8 +9,7 @@ using StringStamped = smarc_msgs::msg::StringStamped;
 class PingSynchronizer : public rclcpp::Node
 {
 public:
-    PingSynchronizer()
-        : Node("ping_synchronizer"), toggle_(true)
+    PingSynchronizer() : Node("ping_synchronizer"), toggle_(true)
     {
         this->declare_parameter<int>("interval_ms", 500);
         int interval_ms = this->get_parameter("interval_ms").as_int();

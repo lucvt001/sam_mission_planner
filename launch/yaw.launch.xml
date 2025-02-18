@@ -1,0 +1,7 @@
+<launch>
+    <node name="yaw_pid" exec="pid_controller" pkg="sam_mission_planner" output="screen">
+        <param name="input_data_topic" value="test"/>
+        <param name="output_control_topic" value="/follower/core/thrust_vector_cmd_horizontal"/>
+        <param from="$(find-pkg-share sam_mission_planner)/config/yaw_pid.yaml" />
+    </node>
+</launch>

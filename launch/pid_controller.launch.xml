@@ -1,16 +1,24 @@
 <launch>
-    <node name="rpm_pid" exec="pid_controller" pkg="sam_mission_planner" output="screen">
-        <param name="input_data_topic" value="/follower/relative_triangulation_x"/>
-        <param name="output_control_topic" value="/follower/core/thruster1_cmd_float"/>
-        <param from="$(find-pkg-share sam_mission_planner)/config/rpm_pid.yaml" />
-    </node>
-
-    <executable cmd="ros2 run topic_tools transform
-        /follower/core/thruster1_cmd_float /follower/core/thruster1_cmd
-        smarc_msgs/msg/ThrusterRPM
-        'smarc_msgs.msg.ThrusterRPM(rpm=int(m.data * 1000))'
-        --import smarc_msgs --wait-for-start" output="screen"/>
+    <!-- Nodes to control forward rpm of the follower vehicle -->
+    <executable cmd="ros2 topic pub -r 10 /follower/core/thruster1_cmd smarc_msgs/msg/ThrusterRPM '{rpm: 300}'"/>
 
     <executable cmd="ros2 run topic_tools relay 
         /follower/core/thruster1_cmd /follower/core/thruster2_cmd --wait-for-start" output="screen"/>
+    <!-- End -->
+
+    <!-- /////////////////////////// -->
+
+    <!-- Nodes to control vertical and horizontal angles of the follower vehicle -->
+    <node name="thruster_angles_publisher" exec="thruster_angles_publisher" pkg="sam_mission_planner" output="screen">
+        <param name="vertical_angle_topic" value="/follower/core/thrust_vector_cmd_vertical"/>
+        <param name="horizontal_angle_topic" value="/follower/core/thrust_vector_cmd_horizontal"/>
+        <param name="thruster_angles_topic" value="/follower/core/thrust_vector_cmd"/>
+    </node>
+
+    <node name="yaw_pid" exec="pid_controller" pkg="sam_mission_planner" output="screen">
+        <param name="input_data_topic" value="/follower/offset_position_y"/>
+        <param name="output_control_topic" value="/follower/core/thrust_vector_cmd_horizontal"/>
+        <param from="$(find-pkg-share sam_mission_planner)/config/yaw_pid.yaml" />
+    </node>
+
 </launch>

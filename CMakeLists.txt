@@ -11,6 +11,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(smarc_msgs REQUIRED)
+find_package(sam_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 
@@ -23,6 +24,7 @@ set(ros_dependencies
   std_msgs
   geometry_msgs
   smarc_msgs
+  sam_msgs
   tf2
   tf2_geometry_msgs
 )
@@ -45,6 +47,12 @@ ament_target_dependencies(fuse_distance_triangulation ${ros_dependencies})
 add_executable(pid_controller src/pid.cpp src/pid_control_ros.cpp)
 ament_target_dependencies(pid_controller ${ros_dependencies})
 
+add_executable(thruster_angles_publisher src/thruster_angles_publisher.cpp)
+ament_target_dependencies(thruster_angles_publisher ${ros_dependencies})
+
+add_executable(relative_target_position_publisher src/relative_target_position_publisher.cpp)
+ament_target_dependencies(relative_target_position_publisher ${ros_dependencies})
+
 install(TARGETS
   ping_synchronizer
   string_stamped_processing
@@ -52,6 +60,8 @@ install(TARGETS
   ground_truth_tf2
   fuse_distance_triangulation
   pid_controller
+  thruster_angles_publisher
+  relative_target_position_publisher
   DESTINATION lib/${PROJECT_NAME}
 )
 

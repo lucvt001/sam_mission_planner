@@ -17,23 +17,11 @@ float PID::calculate( float setpoint, float current )
     float Pout = Kp_ * error;
 
     // Integral term
-    float Iout = 0.0;
-    // If the error changes sign, instantly unwind the integral
-    // Also unwind the integral if the input is outside the conditional range
-    if ( integral_ * error < -1e-8 || current < condition_integral_input_min_ || current > condition_integral_input_max_) 
-        integral_ = 0.0;
-    // Only accumulate the integral term if the input is within the conditional range
-    else
-    {
+    if (error * integral_ > 0)
         integral_ += error * dt_;
-        Iout = Ki_ * integral_;
-    } 
-    
-    // Clamp the integral term
-    if ( integral_ > integral_max_ )
-        integral_ = integral_max_;
-    else if ( integral_ < integral_min_ )
-        integral_ = integral_min_;
+    else
+        integral_ += error * dt_ * unwinding_factor_;
+    float Iout = Ki_ * integral_;
 
     // Derivative term
     float derivative = (error - prev_error_) / dt_;
@@ -52,21 +40,15 @@ float PID::calculate( float setpoint, float current )
     prev_error_ = error;
 
     if ( verbose_mode_ )
-        cout << pid_name_ << " - error: " << error << " integral: " << integral_ << " derivative: " << derivative << " Output: " << output << endl;
+        // cout << pid_name_ << " - error: " << error << " integral: " << integral_ << " derivative: " << derivative << " Output: " << output << endl;
+        cout << pid_name_ << " - Pout: " << Pout << " Iout: " << Iout << " Dout: " << Dout << " Output: " << output << endl;
 
     return output;
 }
 
-void PID::set_conditional_integral_input_range( float min, float max )
+void PID::set_unwinding_factor( float unwinding_factor )
 {
-    condition_integral_input_min_ = min;
-    condition_integral_input_max_ = max;
-}
-
-void PID::set_integral_range( float min, float max )
-{
-    integral_min_ = min;
-    integral_max_ = max;
+    unwinding_factor_ = unwinding_factor;
 }
 
 void PID::reset()

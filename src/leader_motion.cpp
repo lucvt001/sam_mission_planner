@@ -9,17 +9,21 @@ using ThrusterRPM = smarc_msgs::msg::ThrusterRPM;
 class LeaderMotion : public rclcpp::Node
 {
 public:
-    LeaderMotion() : Node("leader_motion"), rpm_(350), stop_(false)
+    LeaderMotion() : Node("leader_motion"), stop_(false)
     {
         this->declare_parameter<string>("leader1_thruster1_topic", "");
         this->declare_parameter<string>("leader1_thruster2_topic", "");
         this->declare_parameter<string>("leader2_thruster1_topic", "");
         this->declare_parameter<string>("leader2_thruster2_topic", "");
+        this->declare_parameter<int>("rpm", 500);
+        this->declare_parameter<float>("duration", 20.0);
 
         string leader1_thruster1_topic = this->get_parameter("leader1_thruster1_topic").as_string();
         string leader1_thruster2_topic = this->get_parameter("leader1_thruster2_topic").as_string();
         string leader2_thruster1_topic = this->get_parameter("leader2_thruster1_topic").as_string();
         string leader2_thruster2_topic = this->get_parameter("leader2_thruster2_topic").as_string();
+        rpm_ = this->get_parameter("rpm").as_int();
+        float duration = this->get_parameter("duration").as_double();
 
         publisher11_ = this->create_publisher<ThrusterRPM>(leader1_thruster1_topic, 10);
         publisher12_ = this->create_publisher<ThrusterRPM>(leader1_thruster2_topic, 10);
@@ -30,7 +34,7 @@ public:
             50ms, std::bind(&LeaderMotion::publishCommand, this));
 
         stop_timer_ = this->create_wall_timer(
-            20s, std::bind(&LeaderMotion::stopFleet, this));
+            std::chrono::duration<double>(duration), std::bind(&LeaderMotion::stopFleet, this));
     }
 
 private:
